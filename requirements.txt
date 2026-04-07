@@ -1,0 +1,5 @@
+flask
+platformdirs
+pywebview[qt]
+PyQt6
+qtpy

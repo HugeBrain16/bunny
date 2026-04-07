@@ -1,4 +1,5 @@
 import os
+import sys
 import pathlib
 
 from flask import Flask, render_template, request, redirect, url_for
@@ -13,6 +14,11 @@ __DIR__ = user_data_dir(__APP__, __AUTHOR__)
 pathlib.Path(__DIR__).mkdir(parents=True, exist_ok=True)
 
 DATAFILE = os.path.join(__DIR__, "bunny.json")
+
+def resource(path):
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, path)
+    return os.path.join(os.path.abspath("."), path)
 
 def str_to_date(value, fmt="%Y-%m-%d"):
     return datetime.strptime(value, fmt).astimezone()
@@ -39,7 +45,10 @@ def count_days(tasks):
 
 # ==========================================================
 
-app = Flask(__APP__)
+template_dir = resource("templates")
+static_dir = resource("static")
+
+app = Flask(__APP__, template_folder=template_dir, static_folder=static_dir)
 app.jinja_env.globals["today_date"] = lambda: datetime.now().astimezone()
 app.jinja_env.filters['str_to_date'] = str_to_date
 
