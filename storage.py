@@ -70,7 +70,7 @@ class Storage:
 
 	def write(self):
 		with open(self.file, "wb") as f:
-			f.write(zlib.compress(json.dumps(self.serialize(), indent=2).encode("utf-8")))
+			f.write(zlib.compress(json.dumps(self.serialize()).encode("utf-8")))
 
 	def serialize(self):
 		data = {}
