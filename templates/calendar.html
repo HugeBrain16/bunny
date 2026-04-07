@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8' />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+		<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js'></script>
+		<script>
+			const task = {{ task | tojson if task else "null" }};
+
+			function toLocalDateStr(date) {
+				return date.getFullYear() + '-'
+					+ String(date.getMonth() + 1).padStart(2, '0') + '-'
+					+ String(date.getDate()).padStart(2, '0');
+			}
+
+			document.addEventListener('DOMContentLoaded', function() {
+				var calendarEl = document.getElementById('calendar');
+
+				var startDate = null;
+				var endDate = null;
+				
+				var todayDate = new Date();
+				todayDate.setHours(0,0,0,0);
+
+				var markedDays = [];
+				var hoursDisplay = [];
+				if (task) {
+					startDate = new Date(task.start_date + "T00:00:00");
+					endDate = new Date(task.end_date + "T00:00:00");
+
+					for (const hour of Object.values(task.hours)) {
+						markedDays.push(hour.date);
+						hoursDisplay.push({
+							title: `${hour.hours} Hour` + (hour.hours > 1 ? "s" : ""),
+							date: hour.date
+						});
+					}
+				}
+
+				var calendar = new FullCalendar.Calendar(calendarEl, {
+					initialView: 'dayGridMonth',
+					timeZone: 'local',
+					events: hoursDisplay,
+
+					dateClick: function(info) {
+						const date = info.date;
+						date.setHours(0,0,0,0);
+
+						if (date >= startDate && date < endDate) {
+							var mEditMark = document.getElementById("mEditMark");
+							mEditMark.style.display = "block";
+
+							var tDate = document.getElementById("tDate");
+							tDate.value = info.dateStr;
+
+							var cEditMark = mEditMark.getElementsByClassName("modal-close")[0];
+							cEditMark.onclick = function() {
+								mEditMark.style.display = "none";
+							}
+						}
+					},
+					dayCellClassNames(arg) {
+						if (!task) return [];
+
+						var classes = [];
+
+						const date = arg.date;
+						date.setHours(0,0,0,0);
+
+						const dateStr = toLocalDateStr(date);
+
+						if (date >= startDate && date < endDate) {
+							if (date.getTime() == todayDate.getTime())
+								classes.push("day-today");
+
+							if (markedDays.includes(dateStr))
+								classes.push("day-marked");
+							else
+								classes.push("day-future");
+
+							return classes;
+						}
+					},
+				});
+				calendar.render();
+			});
+		</script>
+		<title>Bunny Hours Tracker</title>
+	</head>
+	<body>
+		<div class="content" align="center">
+			{% if task %}
+				<h1>{{ task.name }}</h1>
+			{% endif %}
+			<div id="calendar"></div>
+			<br/>
+			<h2><a class="redir" href="{{ url_for('route_index')}}">Go back</a></h2>
+		</div>
+
+		<div id="mEditMark" class="modal">
+			<div class="modal-content">
+				<span class="modal-close">&times;</span>
+				<div class="modal-body" align="center">
+					<h2>Mark add/edit</h2>
+					<form method="POST" action="/mark">
+						<div class="input-field">
+							<label>Date: </label>
+							<input id="tDate" name="tDate" type="date" readonly />
+						</div>
+						<div class="input-field">
+							<label>Hours: </label>
+							<input id="tHours" name="tHours" type="number" min="1" value="1" required />
+						</div>
+						<div class="actions">
+							<button formaction="/mark" name="tIndex" value="{{ taskIndex }}">Mark!</buton>
+							<button class="button-unmark" formaction="/unmark" name="tIndex" value="{{ taskIndex }}">Unmark</buton>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

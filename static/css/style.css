@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Ruluko&display=swap');
+
+:root {
+	--main-bg: #1d2021;
+	--second-bg: #282828;
+	--third-bg: #222;
+
+	--main-fg: #ccc;
+	--second-fg: #888;
+	--third-fg: #777;
+
+	--red:  #7a0b0c;
+	--red2: rgba(200, 0, 0, 0.25);
+	--green: rgba(0, 200, 0, 0.25);
+	--blue: rgba(0, 0, 255, 0.15);
+}
+
+body {
+	font-family: "Ruluko", sans-serif;
+
+	color: var(--main-fg);
+	background-color: var(--main-bg);
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.4);
+}
+
+.modal-close {
+	position: fixed;
+	top: 0;
+	right: 2rem;
+	font-size: 5rem;
+	user-select: none;
+	cursor: pointer;
+	color: var(--main-fg);
+}
+
+.modal-content {
+	padding-top: 6%;
+	padding-left: 35%;
+	padding-right: 35%;
+}
+
+.modal-body {
+	padding: 20px;
+	border-radius: 10px;
+	background-color: var(--second-bg);
+}
+
+.modal-close:hover,
+.modal-close:focus {
+	color: var(--second-fg);
+}
+
+.modal-close:active {
+	color: var(--third-fg);
+}
+
+.content .header {
+	padding-top: 1%;
+}
+
+.input-field {
+	padding-bottom: 8px;
+}
+
+#tasks {
+	padding-top: 24px;
+	width: 50%;
+}
+
+#calendar {
+	font-family: "Ruluko", sans-serif;
+	width: 40%;
+}
+
+label {
+	display: inline-block;
+}
+
+input {
+	font-family: "Ruluko", sans-serif;
+	outline: none;
+	border: 1px solid var(--second-fg);
+	border-radius: 4px;
+	color: var(--main-fg);
+	background-color: var(--main-bg);
+}
+
+h2 {
+	margin-top: 0;
+}
+
+pre {
+	user-select: none;
+}
+
+footer {
+	font-family: monospace;
+	padding-top: 2%;
+}
+
+#tasks th:nth-child(1), #tasks td:nth-child(1) {
+	width: 5%;
+}
+
+#tasks th:nth-child(3), #tasks td:nth-child(3) {
+	width: 14%;
+}
+
+#tasks th:nth-child(4), #tasks td:nth-child(4) {
+	width: 14%;
+}
+
+#tasks th:nth-child(5), #tasks td:nth-child(5) {
+	width: 12%;
+}
+
+#tasks th:nth-child(6), #tasks td:nth-child(6) {
+	width: 15%;
+}
+
+.actions {
+	display: flex;
+	justify-content: center;
+	gap: 5px;
+}
+
+th {
+	background-color: var(--second-bg);
+}
+
+td {
+	background-color: var(--third-bg);
+}
+
+th, td {
+	padding: 10px;
+}
+
+.button-delete,
+.button-unmark {
+	color: var(--red);
+}
+
+button {
+	font-family: "Ruluko", sans-serif;
+	font-weight: bold;
+
+	padding-top: 4px;
+	padding-bottom: 4px;
+	padding-left: 14px;
+	padding-right: 14px;
+	border-radius: 8px;
+
+	color: var(--main-fg);
+	background-color: var(--third-fg);
+	cursor: pointer;
+}
+
+button:active {
+	background-color: var(--second-fg);
+}
+
+.redir {
+	color: inherit;
+}
+
+.redir:hover {
+	color: var(--second-fg);
+}
+
+.day-today {
+	border: 4px solid gold !important;
+}
+
+.day-marked {
+  background-color: var(--green) !important;
+}
+
+.day-future {
+  background-color: var(--blue) !important;
+}

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8' />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+		<title>Bunny Hours Tracker</title>
+	</head>
+	<body>
+		<div class="content" align="center">
+			<div class="header">
+				<pre>
+  ⣠⡶⢶⣦⠀⠀⠀⣠⡶⢶⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⢰⡟⠀⠀⢹⣧⠀⣸⠏⠀⠀⢻⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⣿⠁⠀⠀⠀⢿⣴⡿⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⣿⠀⠀⠀⠀⢸⣿⠇⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⢿⡆⠀⠀⠀⠈⣿⠀⠀⠀⠀⣸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⡀⠀⠀⠀⠀⠀
+⠀⢸⣷⠀⠀⠀⠀⠀⠀⠀⠀⢰⣟⠀⠀⠀⣀⣀⣀⣀⣀⣾⠋⠉⠹⣇⠀⠀⠀⠀
+⠀⣰⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣧⣶⠞⠋⠉⠀⠈⠉⠃⠀⠀⢠⡟⠀⠀⠀⠀
+⢠⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣦⡀⠀⠀
+⣸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢘⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⣄⠀
+⢿⡇⠸⣿⠀⠀⠀⠀⠀⠀⣴⣆⠀⢸⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⡆
+⠸⣧⡀⠀⠀⢀⣶⣶⡆⠀⠈⠁⣰⡟⠁⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⣸⡇
+⠀⠙⠻⣦⣄⣀⣀⣈⣁⣀⣤⠾⠋⠀⠀⠀⠀⠀⣀⣠⣴⡶⢿⡿⠿⠶⣶⠶⠟⠀
+⠀⠀⢠⡟⠉⢙⣿⠛⠋⠉⠁⠀⠀⣀⣠⣴⠶⠟⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠘⢿⣤⣘⣿⡀⠀⠀⢀⣴⡿⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠈⠉⠙⠛⠻⠿⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+				</pre>
+				<h1 id="title">Bunny Hours Tracker</h1>
+			<div>
+
+			<button id="bAddTask">Add task</button>
+			
+			<table id="tasks">
+				<tr>
+					<th>No.</th>
+					<th>Name</th>
+					<th>Start date</th>
+					<th>End date</th>
+					<th>Target hours</th>
+					<th>Action</th>
+				</tr>
+				{% for ti, t in tasks.items() %}
+				<tr>
+					<td>{{ ti + 1 }}</td>
+					<td>{{ t.name }}</td>
+					<td>{{ t.start_date }}</td>
+					<td>{{ t.end_date }}</td>
+					{% if t.total_hours > t.target_hours | int %}
+					<td style="background-color: var(--green);">{{ t.total_hours }} / {{ t.target_hours }}</td>
+					{% elif today_date() > t.end_date | str_to_date and t.total_hours < t.target_hours | int %}
+					<td style="background-color: var(--red2);">{{ t.total_hours }} / {{ t.target_hours }}</td>
+					{% else %}
+					<td>{{ t.total_hours }} / {{ t.target_hours }}</td>
+					{% endif %}
+					<td>
+						<form method="POST" class="actions">
+							<button formaction="/calendar" name="index" value="{{ ti }}">Track</button>
+							<button type="button" onclick="bEditCallback(event)" name="index" value="{{ ti }}">Edit</button>
+							<button class="button-delete" formaction="/delete" name="index" value="{{ ti }}">Delete</button>
+						</form>
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+			{% if not tasks %}
+				<p>Task empty.</p>
+			{% endif %}
+
+		</div>
+
+		<footer>
+			<p>•⩊•</p>
+		</footer>
+
+		<div id="mAddTask" class="modal">
+			<div class="modal-content">
+				<span class="modal-close">&times;</span>
+				<div class="modal-body" align="center">
+					<h2>Add task</h2>
+					<form method="POST" action="/add">
+						<div class="input-field">
+							<label>Name: </label>
+							<input name="tName" type="text" required />
+						</div>
+						<div class="input-field">
+							<label>Start date: </label>
+							<input name="tStartDate" type="date" required />
+						</div>
+						<div class="input-field">
+							<label>End date: </label>
+							<input name="tEndDate" type="date" required />
+						</div>
+						<div class="input-field">
+							<label>Target hours: </label>
+							<input name="tHours" type="number" min="1" value="1" required />
+						</div>
+						<button>Add!</buton>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div id="mEditTask" class="modal">
+			<div class="modal-content">
+				<span class="modal-close">&times;</span>
+				<div class="modal-body" align="center">
+					<h2>Edit task</h2>
+					<form method="POST" action="/edit">
+						<div class="input-field">
+							<label>Name: </label>
+							<input name="tName" type="text" required />
+						</div>
+						<div class="input-field">
+							<label>Start date: </label>
+							<input name="tStartDate" type="date" required />
+						</div>
+						<div class="input-field">
+							<label>End date: </label>
+							<input name="tEndDate" type="date" required />
+						</div>
+						<div class="input-field">
+							<label>Target hours: </label>
+							<input name="tHours" type="number" min="1" value="1" required />
+						</div>
+						<button name="tSubmit">Save!</buton>
+					</form>
+				</div>
+			</div>
+		</div>
+		<script>
+			const tasks = {{ tasks | tojson if tasks else "null" }};
+
+			var mAddTask = document.getElementById("mAddTask");
+			var bAddTask = document.getElementById("bAddTask");
+
+			bAddTask.onclick = function() {
+				mAddTask.style.display = "block";
+
+				var tName 	   = mAddTask.querySelector('[name="tName"]');
+				var tStartDate = mAddTask.querySelector('[name="tStartDate"]');
+				var tEndDate   = mAddTask.querySelector('[name="tEndDate"]');
+				var tHours 	   = mAddTask.querySelector('[name="tHours"]');
+
+				tName.value = "";
+				tStartDate.value = "";
+				tEndDate.value = "";
+				tHours.value = "";
+
+				var cAddTask = mAddTask.getElementsByClassName("modal-close")[0];
+				cAddTask.onclick = function() {
+					mAddTask.style.display = "none";
+				}
+			}
+
+			var mEditTask = document.getElementById("mEditTask");
+			function bEditCallback(event) {
+				const idx = parseInt(event.target.value);
+
+				mEditTask.style.display = "block";
+
+				var tName 	   = mEditTask.querySelector('[name="tName"]');
+				var tStartDate = mEditTask.querySelector('[name="tStartDate"]');
+				var tEndDate   = mEditTask.querySelector('[name="tEndDate"]');
+				var tHours 	   = mEditTask.querySelector('[name="tHours"]');
+				var tSubmit    = mEditTask.querySelector('[name="tSubmit"]');
+
+				tName.value = tasks[idx]["name"];
+				tStartDate.value = tasks[idx]["start_date"];
+				tEndDate.value = tasks[idx]["end_date"];
+				tHours.value = tasks[idx]["target_hours"];
+				tSubmit.value = idx;
+
+				var cEditTask = mEditTask.getElementsByClassName("modal-close")[0];
+				cEditTask.onclick = function() {
+					mEditTask.style.display = "none";
+				}
+			}
+		</script>
+	</body>
+</html>
