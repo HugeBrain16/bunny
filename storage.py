@@ -1,5 +1,6 @@
 import os
 import json
+import zlib
 
 class Hours:
 	def __init__(self, date, hours):
@@ -50,12 +51,12 @@ class Storage:
 		self.file = file
 		self.tasks = []
 
-		if not os.path.isfile(file) or len(open(file, "r").read().strip()) == 0:
-			with open(file, "w") as f:
-				f.write("{}")
+		if not os.path.isfile(file) or len(open(file, "rb").read()) == 0:
+			with open(file, "wb") as f:
+				f.write(zlib.compress("{}".encode("utf-8")))
 
-		with open(file, "r") as f:
-			data = json.loads(f.read())
+		with open(file, "rb") as f:
+			data = json.loads(zlib.decompress(f.read()).decode("utf-8"))
 
 			for t in data.values():
 				task = self.add_task(t["name"], t["start_date"], t["end_date"], t["target_hours"])
@@ -68,8 +69,8 @@ class Storage:
 					task._hours.append(hours)
 
 	def write(self):
-		with open(self.file, "w") as f:
-			f.write(json.dumps(self.serialize(), indent=2))
+		with open(self.file, "wb") as f:
+			f.write(zlib.compress(json.dumps(self.serialize(), indent=2).encode("utf-8")))
 
 	def serialize(self):
 		data = {}

@@ -13,7 +13,7 @@ __VERSION__ = "1.0.0"
 __DIR__ = user_data_dir(__APP__, __AUTHOR__)
 pathlib.Path(__DIR__).mkdir(parents=True, exist_ok=True)
 
-DATAFILE = os.path.join(__DIR__, "bunny.json")
+DATAFILE = os.path.join(__DIR__, "bunny.db")
 
 def resource(path):
     if hasattr(sys, "_MEIPASS"):
