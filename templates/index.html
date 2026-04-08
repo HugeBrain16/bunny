@@ -184,6 +184,11 @@
 						locale: locale
 					});
 				};
+				script.onerror = () => {
+					flatpickr("input[type='date']", {
+						locale: "default"
+					});
+				};
 				document.head.appendChild(script);
 			}
 			if (settings && settings.locale)

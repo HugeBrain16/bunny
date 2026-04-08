@@ -153,6 +153,13 @@
 						clickOpens: false
 					});
 				};
+				script.onerror = () => {
+					flatpickr("input[type='date']", {
+						locale: "default",
+						allowInput: false,
+						clickOpens: false
+					});
+				};
 				document.head.appendChild(script);
 			}
 			if (settings && settings.locale)
