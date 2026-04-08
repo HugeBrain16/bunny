@@ -2,10 +2,13 @@
 <html>
 	<head>
 		<meta charset='utf-8' />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fork-awesome/1.2.0/css/fork-awesome.min.css"/>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 		<title>Bunny Hours Tracker</title>
 	</head>
 	<body>
+		<span id="bSettings"><i class="fa fa-cog" aria-hidden="true"></i> Settings</span>
+
 		<div class="content" align="center">
 			<div class="header">
 				<pre>
@@ -126,8 +129,50 @@
 				</div>
 			</div>
 		</div>
+		<div id="mSettings" class="modal">
+			<div class="modal-content">
+				<span class="modal-close">&times;</span>
+				<div class="modal-body" align="center">
+					<h2>Settings</h2>
+					<form method="POST" action="/settings">
+						<div class="input-field">
+							<label>Locale: </label>
+							<input name="tLocale" type="text" required />
+						</div>
+						<div class="input-field">
+							<label>First day of the week: </label>
+							<select name="tFirstDay" required>
+								<option value="sunday">Sunday</option>
+								<option value="monday">Monday</option>
+								<option value="tuesday">Tuesday</option>
+								<option value="wednesday">Wednesday</option>
+								<option value="thursday">Thursday</option>
+								<option value="friday">Friday</option>
+								<option value="saturday">Saturday</option>
+							</select>
+						</div>
+						<div class="input-field">
+							<label>Mark sundays red: </label>
+							<input name="tRedSundays" type="checkbox" value="yes" />
+						</div>
+						<button name="tSubmit">Save!</buton>
+					</form>
+				</div>
+			</div>
+		</div>
 		<script>
 			const tasks = {{ tasks | tojson if tasks else "null" }};
+			const settings = {{ settings | tojson if settings else "null" }};
+
+			const daymap = {
+				0: "sunday",
+				1: "monday",
+				2: "tuesday",
+				3: "wednesday",
+				4: "thursday",
+				5: "friday",
+				6: "saturday"
+			};
 
 			var mAddTask = document.getElementById("mAddTask");
 			var bAddTask = document.getElementById("bAddTask");
@@ -140,10 +185,10 @@
 				var tEndDate   = mAddTask.querySelector('[name="tEndDate"]');
 				var tHours 	   = mAddTask.querySelector('[name="tHours"]');
 
-				tName.value = "";
+				tName.value 	 = "";
 				tStartDate.value = "";
-				tEndDate.value = "";
-				tHours.value = "";
+				tEndDate.value 	 = "";
+				tHours.value 	 = "";
 
 				var cAddTask = mAddTask.getElementsByClassName("modal-close")[0];
 				cAddTask.onclick = function() {
@@ -163,15 +208,38 @@
 				var tHours 	   = mEditTask.querySelector('[name="tHours"]');
 				var tSubmit    = mEditTask.querySelector('[name="tSubmit"]');
 
-				tName.value = tasks[idx]["name"];
-				tStartDate.value = tasks[idx]["start_date"];
-				tEndDate.value = tasks[idx]["end_date"];
-				tHours.value = tasks[idx]["target_hours"];
-				tSubmit.value = idx;
+				const task = tasks[idx];
+				tName.value 	 = task.name;
+				tStartDate.value = task.start_date;
+				tEndDate.value 	 = task.end_date;
+				tHours.value 	 = task.target_hours;
+				tSubmit.value 	 = idx;
 
 				var cEditTask = mEditTask.getElementsByClassName("modal-close")[0];
 				cEditTask.onclick = function() {
 					mEditTask.style.display = "none";
+				}
+			}
+
+			var mSettings = document.getElementById("mSettings");
+			var bSettings = document.getElementById("bSettings");
+
+			bSettings.onclick = function() {
+				mSettings.style.display = "block";
+
+				var tLocale   	= mSettings.querySelector('[name="tLocale"]');
+				var tFirstDay	= mSettings.querySelector('[name="tFirstDay"]');
+				var tRedSundays = mSettings.querySelector('[name="tRedSundays"]');
+
+				if (settings) {
+					tLocale.value 		= settings.locale;
+					tFirstDay.value 	= daymap[settings.first_day];
+					tRedSundays.checked = settings.red_sundays;
+				}
+
+				var cSettings = mSettings.getElementsByClassName("modal-close")[0];
+				cSettings.onclick = function() {
+					mSettings.style.display = "none";
 				}
 			}
 		</script>

@@ -194,3 +194,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1) brightness(0.8);
     cursor: pointer;
 }
+
+#bSettings {
+	position: fixed;
+	user-select: none;
+	top: 10px;
+	left: 10px;
+
+	font-size: 1.2rem;
+	color: var(--second-fg);
+	transition: 0.2s;
+}
+
+#bSettings:hover {
+	cursor: pointer;
+	color: var(--main-fg);
+}
+
+#bSettings:active {
+	color: var(--third-fg);
+}

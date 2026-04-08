@@ -3,9 +3,21 @@
 	<head>
 		<meta charset='utf-8' />
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+		<style>
+			{% if settings.red_sundays %}
+			.day-sunday {
+				color: red !important;
+			}
+
+			.fc-col-header-cell.fc-day-sun {
+   				color: red;
+			}
+			{% endif %}
+		</style>
 		<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js'></script>
 		<script>
 			const task = {{ task | tojson if task else "null" }};
+			const settings = {{ settings | tojson if settings else "null" }};
 
 			function toLocalDateStr(date) {
 				return date.getFullYear() + '-'
@@ -40,6 +52,8 @@
 				var calendar = new FullCalendar.Calendar(calendarEl, {
 					initialView: 'dayGridMonth',
 					timeZone: 'local',
+					locale: settings ? settings.locale : "",
+					firstDay: settings ? settings.first_day : 0,
 					events: hoursDisplay,
 
 					dateClick: function(info) {
@@ -67,6 +81,11 @@
 						const date = arg.date;
 						date.setHours(0,0,0,0);
 
+						if (settings) {
+							if (settings.red_sundays && date.getDay() === 0)
+								classes.push("day-sunday");
+						}
+
 						const dateStr = toLocalDateStr(date);
 
 						if (date >= startDate && date < endDate) {
@@ -80,6 +99,8 @@
 
 							return classes;
 						}
+
+						return classes;
 					},
 				});
 				calendar.render();

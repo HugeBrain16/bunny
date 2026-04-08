@@ -5,15 +5,28 @@ import pathlib
 from flask import Flask, render_template, request, redirect, url_for
 from platformdirs import user_data_dir
 from datetime import datetime
+
+import settings as Settings
 from storage import Storage
 
 __APP__ = "Bunny"
 __AUTHOR__ = "HugeBrain16"
-__VERSION__ = "1.0.0"
+__VERSION__ = "1.1.0"
 __DIR__ = user_data_dir(__APP__, __AUTHOR__)
 pathlib.Path(__DIR__).mkdir(parents=True, exist_ok=True)
 
+DAYMAP = {
+	"sunday": 0,
+	"monday": 1,
+	"tuesday": 2,
+	"wednesday": 3,
+	"thursday": 4,
+	"friday": 5,
+	"saturday": 6
+}
+
 DATAFILE = os.path.join(__DIR__, "bunny.db")
+SETTINGSFILE = os.path.join(__DIR__, "settings.json")
 
 def resource(path):
     if hasattr(sys, "_MEIPASS"):
@@ -58,7 +71,9 @@ def route_index():
 	tasks = count_hours(db.serialize())
 	tasks = count_days(tasks)
 
-	return render_template("index.html", tasks=tasks)
+	settings = Settings.load(SETTINGSFILE)
+
+	return render_template("index.html", tasks=tasks, settings=settings)
 
 @app.route("/calendar", methods=["GET", "POST"])
 def route_calendar():
@@ -66,11 +81,13 @@ def route_calendar():
 	tasks = count_hours(db.serialize())
 	tasks = count_days(tasks)
 
+	settings = Settings.load(SETTINGSFILE)
+
 	if request.method == "POST":
 		idx = int(request.form["index"])
-		return render_template("calendar.html", task=tasks[idx], taskIndex=idx)
+		return render_template("calendar.html", task=tasks[idx], taskIndex=idx, settings=settings)
 	elif request.method == "GET":
-		return render_template("calendar.html", task=None)
+		return render_template("calendar.html", task=None, settings=settings)
 
 @app.route("/delete", methods=["POST"])
 def route_delete():
@@ -139,6 +156,18 @@ def route_mark():
 	tasks = count_days(tasks)
 
 	return render_template("calendar.html", task=tasks[idx], taskIndex=idx)
+
+@app.route("/settings", methods=["POST"])
+def route_settings():
+	settings = Settings.load(SETTINGSFILE)
+
+	settings["locale"] 		= request.form["tLocale"]
+	settings["first_day"] 	= DAYMAP[request.form["tFirstDay"]]
+	settings["red_sundays"] = request.form.get("tRedSundays") == "yes"
+
+	Settings.write(SETTINGSFILE, settings)
+
+	return redirect(url_for("route_index"))
 
 # ==========================================================
 
