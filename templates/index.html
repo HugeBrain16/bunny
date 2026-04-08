@@ -3,6 +3,8 @@
 	<head>
 		<meta charset='utf-8' />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fork-awesome/1.2.0/css/fork-awesome.min.css"/>
+		<link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+		<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 		<title>Bunny Hours Tracker</title>
 	</head>
@@ -173,6 +175,19 @@
 				5: "friday",
 				6: "saturday"
 			};
+
+			function initDatePicker(locale) {
+				const script = document.createElement("script");
+				script.src = `https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/${locale}.js`;
+				script.onload = () => {
+					flatpickr("input[type='date']", {
+						locale: locale
+					});
+				};
+				document.head.appendChild(script);
+			}
+			if (settings && settings.locale)
+				initDatePicker(settings.locale);
 
 			var mAddTask = document.getElementById("mAddTask");
 			var bAddTask = document.getElementById("bAddTask");

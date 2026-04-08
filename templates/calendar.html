@@ -2,6 +2,8 @@
 <html>
 	<head>
 		<meta charset='utf-8' />
+		<link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+		<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 		<style>
 			{% if settings.red_sundays %}
@@ -140,5 +142,21 @@
 				</div>
 			</div>
 		</div>
+		<script>
+			function initDatePicker(locale) {
+				const script = document.createElement("script");
+				script.src = `https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/${locale}.js`;
+				script.onload = () => {
+					flatpickr("input[type='date']", {
+						locale: locale,
+						allowInput: false,
+						clickOpens: false
+					});
+				};
+				document.head.appendChild(script);
+			}
+			if (settings && settings.locale)
+				initDatePicker(settings.locale);
+		</script>
 	</body>
 </html>

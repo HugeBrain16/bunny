@@ -140,7 +140,9 @@ def route_unmark():
 	tasks = count_hours(db.serialize())
 	tasks = count_days(tasks)
 
-	return render_template("calendar.html", task=tasks[idx], taskIndex=idx)
+	settings = Settings.load(SETTINGSFILE)
+
+	return render_template("calendar.html", task=tasks[idx], taskIndex=idx, settings=settings)
 
 @app.route("/mark", methods=["POST"])
 def route_mark():
@@ -155,7 +157,9 @@ def route_mark():
 	tasks = count_hours(db.serialize())
 	tasks = count_days(tasks)
 
-	return render_template("calendar.html", task=tasks[idx], taskIndex=idx)
+	settings = Settings.load(SETTINGSFILE)
+
+	return render_template("calendar.html", task=tasks[idx], taskIndex=idx, settings=settings)
 
 @app.route("/settings", methods=["POST"])
 def route_settings():
