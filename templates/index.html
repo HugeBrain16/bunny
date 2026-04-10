@@ -61,7 +61,7 @@
 						<form method="POST" class="actions">
 							<button formaction="/calendar" name="index" value="{{ ti }}">Track</button>
 							<button type="button" onclick="bEditCallback(event)" name="index" value="{{ ti }}">Edit</button>
-							<button class="button-delete" formaction="/delete" name="index" value="{{ ti }}">Delete</button>
+							<button class="button-delete" formaction="/delete" name="index" value="{{ ti }}" onclick="return confirm('Delete this task?')">Delete</button>
 						</form>
 					</td>
 				</tr>

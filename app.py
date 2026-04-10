@@ -11,7 +11,7 @@ from storage import Storage
 
 __APP__ = "Bunny"
 __AUTHOR__ = "HugeBrain16"
-__VERSION__ = "1.1.0"
+__VERSION__ = "1.2.0"
 __DIR__ = user_data_dir(__APP__, __AUTHOR__)
 pathlib.Path(__DIR__).mkdir(parents=True, exist_ok=True)
 
@@ -147,11 +147,18 @@ def route_unmark():
 @app.route("/mark", methods=["POST"])
 def route_mark():
 	db = Storage(DATAFILE)
-	idx = int(request.form["tIndex"])
-	db.tasks[idx].add_hours(
-		request.form["tDate"],
-		int(request.form["tHours"])
-	)
+
+	ti = int(request.form["tIndex"])
+	date = request.form["tDate"]
+	hours = int(request.form["tHours"])
+	color = request.form["tColor"]
+
+	db.tasks[ti].add_hours(date, hours)
+
+	for hi, h in enumerate(db.tasks[ti]._hours):
+		if h.date == date:
+			db.tasks[ti]._hours[hi].set_color(color)
+
 	db.write()
 
 	tasks = count_hours(db.serialize())
@@ -159,7 +166,7 @@ def route_mark():
 
 	settings = Settings.load(SETTINGSFILE)
 
-	return render_template("calendar.html", task=tasks[idx], taskIndex=idx, settings=settings)
+	return render_template("calendar.html", task=tasks[ti], taskIndex=ti, settings=settings)
 
 @app.route("/settings", methods=["POST"])
 def route_settings():

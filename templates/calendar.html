@@ -21,6 +21,13 @@
 			const task = {{ task | tojson if task else "null" }};
 			const settings = {{ settings | tojson if settings else "null" }};
 
+			const colorMap = {
+				red: "#d63737",
+				blue: "#429ebf",
+				green: "#1caf48",
+				yellow: "#adaf05",
+			};
+
 			function toLocalDateStr(date) {
 				return date.getFullYear() + '-'
 					+ String(date.getMonth() + 1).padStart(2, '0') + '-'
@@ -38,6 +45,7 @@
 
 				var markedDays = [];
 				var hoursDisplay = [];
+				var hoursColorMap = {};
 				if (task) {
 					startDate = new Date(task.start_date + "T00:00:00");
 					endDate = new Date(task.end_date + "T00:00:00");
@@ -46,8 +54,13 @@
 						markedDays.push(hour.date);
 						hoursDisplay.push({
 							title: `${hour.hours} Hour` + (hour.hours > 1 ? "s" : ""),
-							date: hour.date
+							date: hour.date,
+							backgroundColor: hour.color ?
+								(colorMap[hour.color] ? colorMap[hour.color] : colorMap.blue)
+								: colorMap.blue,
+							borderColor: "transparent",
 						});
+						hoursColorMap[hour.date] = hour.color;
 					}
 				}
 
@@ -62,12 +75,17 @@
 						const date = info.date;
 						date.setHours(0,0,0,0);
 
-						if (date >= startDate && date < endDate) {
+						if (date >= startDate && date <= endDate) {
 							var mEditMark = document.getElementById("mEditMark");
 							mEditMark.style.display = "block";
 
-							var tDate = document.getElementById("tDate");
+							var tDate  = mEditMark.querySelector('input[name="tDate"]');
+							var tColor = mEditMark.querySelector('select[name="tColor"]');
+
+							var color = hoursColorMap[info.dateStr];
+
 							tDate.value = info.dateStr;
+							tColor.value = color ? color : "blue";
 
 							var cEditMark = mEditMark.getElementsByClassName("modal-close")[0];
 							cEditMark.onclick = function() {
@@ -90,7 +108,7 @@
 
 						const dateStr = toLocalDateStr(date);
 
-						if (date >= startDate && date < endDate) {
+						if (date >= startDate && date <= endDate) {
 							if (date.getTime() == todayDate.getTime())
 								classes.push("day-today");
 
@@ -128,11 +146,20 @@
 					<form method="POST" action="/mark">
 						<div class="input-field">
 							<label>Date: </label>
-							<input id="tDate" name="tDate" type="date" readonly />
+							<input name="tDate" type="date" readonly />
 						</div>
 						<div class="input-field">
 							<label>Hours: </label>
-							<input id="tHours" name="tHours" type="number" min="1" value="1" required />
+							<input name="tHours" type="number" min="1" value="1" required />
+						</div>
+						<div class="input-field">
+							<label>Color: </label>
+							<select name="tColor">
+								<option value="blue">Blue</option>
+								<option value="red">Red</option>
+								<option value="green">Green</option>
+								<option value="yellow">Yellow</option>
+							</select>
 						</div>
 						<div class="actions">
 							<button formaction="/mark" name="tIndex" value="{{ taskIndex }}">Mark!</buton>

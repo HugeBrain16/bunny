@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Ruluko&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/fork-awesome/1.2.0/css/fork-awesome.min.css');
 
 :root {
 	--main-bg: #1d2021;
@@ -191,8 +192,8 @@ button:active {
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1) brightness(0.8);
-    cursor: pointer;
+	filter: invert(1) brightness(0.8);
+  cursor: pointer;
 }
 
 #bSettings {

@@ -2,18 +2,35 @@ import os
 import json
 import zlib
 
+_VALID_COLORS = [
+	"red",
+	"green",
+	"blue",
+	"yellow"
+]
+
 class Hours:
 	def __init__(self, date, hours):
 		self.date = date
 		self.hours = hours
 
 		self._note = None
+		self._color = "blue"
 
 	def add_note(self, text):
 		self._note = text
 
 	def get_note(self):
 		return self._note
+
+	def set_color(self, color):
+		color = color.lower()
+
+		if color in _VALID_COLORS:
+			self._color = color
+
+	def get_color(self):
+		return self._color
 
 class Task:
 	def __init__(self, name, start_date, end_date, target_hours):
@@ -65,6 +82,8 @@ class Storage:
 					hours = Hours(h["date"], h["hours"])
 					if h["note"]:
 						hours.add_note(h["note"])
+					if h["color"]:
+						hours.set_color(h["color"])
 
 					task._hours.append(hours)
 
@@ -88,7 +107,8 @@ class Storage:
 				task["hours"][hi] = {
 					"date": h.date,
 					"hours": h.hours,
-					"note": h.get_note()
+					"note": h.get_note(),
+					"color": h.get_color(),
 				}
 
 			data[ti] = task
