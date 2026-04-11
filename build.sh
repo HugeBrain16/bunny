@@ -29,6 +29,7 @@ pip install -r requirements.txt
 pip install pyinstaller
 
 pyinstaller --onedir --name "$APP_NAME" \
+    --icon static/icon.png \
     --add-data "templates:templates" \
     --add-data "static:static" \
     --hidden-import webview \
