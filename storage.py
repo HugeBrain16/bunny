@@ -80,9 +80,9 @@ class Storage:
 
 				for h in t["hours"].values():
 					hours = Hours(h["date"], h["hours"])
-					if h["note"]:
+					if h.get("note"):
 						hours.add_note(h["note"])
-					if h["color"]:
+					if h.get("color"):
 						hours.set_color(h["color"])
 
 					task._hours.append(hours)
