@@ -45,7 +45,7 @@
 
 				var markedDays = [];
 				var hoursDisplay = [];
-				var hoursColorMap = {};
+				var hoursMap = {};
 				if (task) {
 					startDate = new Date(task.start_date + "T00:00:00");
 					endDate = new Date(task.end_date + "T00:00:00");
@@ -60,7 +60,10 @@
 								: colorMap.blue,
 							borderColor: "transparent",
 						});
-						hoursColorMap[hour.date] = hour.color;
+
+						hoursMap[hour.date] = {};
+						hoursMap[hour.date].color = hour.color;
+						hoursMap[hour.date].hours = hour.hours;
 					}
 				}
 
@@ -80,11 +83,14 @@
 							mEditMark.style.display = "block";
 
 							var tDate  = mEditMark.querySelector('input[name="tDate"]');
+							var tHours = mEditMark.querySelector('input[name="tHours"]');
 							var tColor = mEditMark.querySelector('select[name="tColor"]');
 
-							var color = hoursColorMap[info.dateStr];
+							var color = hoursMap[info.dateStr].color;
+							var hours = hoursMap[info.dateStr].hours;
 
 							tDate.value = info.dateStr;
+							tHours.value = hours ? hours : 1;
 							tColor.value = color ? color : "blue";
 
 							var cEditMark = mEditMark.getElementsByClassName("modal-close")[0];
