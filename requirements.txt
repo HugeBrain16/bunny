@@ -1,6 +1,5 @@
 flask
 platformdirs
-pywebview[qt]
+pywebview
 PyQt5
 PyQtWebEngine
-qtpy
