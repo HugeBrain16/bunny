@@ -1,0 +1,42 @@
+name: Releases
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:11
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build AppImage
+        run: |
+          apt update -y && apt upgrade -y
+          apt install -y \
+            file curl wget git ca-certificates \
+            python3 python3-virtualenv \
+            libglib2.0-0 \
+            libgl1 \
+            libx11-6 \
+            libxext6 \
+            libxrender1 \
+            libxcb1 \
+            libxkbcommon-x11-0 \
+            libfuse2
+          virtualenv .env && . .env/bin/activate
+          ./build.sh
+
+      - name: Publish Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: continuous
+          name: Continuous Build
+          allowUpdates: true
+          prerelease: true
+          artifacts: "*.AppImage"

@@ -35,6 +35,8 @@ pyinstaller --onedir --name "$APP_NAME" \
     --hidden-import webview \
     --hidden-import webview.platforms.qt \
     --hidden-import qtpy \
+    --exclude-module PyQt6 \
+    --exclude-module PySide6 \
     --clean \
     --noconfirm \
     web.py
@@ -67,6 +69,6 @@ if [[ -f "static/icon.png" ]]; then
     cp "static/icon.png" "$ICON_DST"
 fi
 
-ARCH=$ARCH "$APPIMAGETOOL" "$APPDIR" "$OUTPUT"
+ARCH=$ARCH APPIMAGE_EXTRACT_AND_RUN=1 "$APPIMAGETOOL" "$APPDIR" "$OUTPUT"
 
 bash ./clean.sh
