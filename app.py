@@ -11,7 +11,7 @@ from storage import Storage
 
 __APP__ = "Bunny"
 __AUTHOR__ = "HugeBrain16"
-__VERSION__ = "1.2.2"
+__VERSION__ = "1.3.0"
 __DIR__ = user_data_dir(__APP__, __AUTHOR__)
 pathlib.Path(__DIR__).mkdir(parents=True, exist_ok=True)
 
@@ -152,12 +152,14 @@ def route_mark():
 	date = request.form["tDate"]
 	hours = int(request.form["tHours"])
 	color = request.form["tColor"]
+	note = request.form["tNote"]
 
 	db.tasks[ti].add_hours(date, hours)
 
 	for hi, h in enumerate(db.tasks[ti]._hours):
 		if h.date == date:
 			db.tasks[ti]._hours[hi].set_color(color)
+			db.tasks[ti]._hours[hi].set_note(note)
 
 	db.write()
 

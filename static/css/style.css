@@ -191,6 +191,16 @@ button:active {
   background-color: var(--blue) !important;
 }
 
+.day-has-note::before {
+	font-family: ForkAwesome;
+	font-weight: 900;
+	font-size: 12px;
+	content: "\f24a";
+	position: absolute;
+	margin-top: 5px;
+	margin-left: 5px;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
 	filter: invert(1) brightness(0.8);
   cursor: pointer;

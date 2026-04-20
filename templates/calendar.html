@@ -54,7 +54,7 @@
 						markedDays.push(hour.date);
 						hoursDisplay.push({
 							title: `${hour.hours} Hour` + (hour.hours > 1 ? "s" : ""),
-							date: hour.date,
+							start: hour.date,
 							backgroundColor: hour.color ?
 								(colorMap[hour.color] ? colorMap[hour.color] : colorMap.blue)
 								: colorMap.blue,
@@ -64,6 +64,42 @@
 						hoursMap[hour.date] = {};
 						hoursMap[hour.date].color = hour.color;
 						hoursMap[hour.date].hours = hour.hours;
+						hoursMap[hour.date].note  = hour.note;
+					}
+				}
+
+				var onClick = function(info) {
+					var date;
+					if (info.date) {
+						date = info.date;
+						date.setHours(0,0,0,0);
+					} else
+						date = info.event.start;
+
+					const dateStr = toLocalDateStr(date);
+
+					if (date >= startDate && date <= endDate) {
+						var mEditMark = document.getElementById("mEditMark");
+						mEditMark.style.display = "block";
+
+						var tDate  = mEditMark.querySelector('input[name="tDate"]');
+						var tHours = mEditMark.querySelector('input[name="tHours"]');
+						var tColor = mEditMark.querySelector('select[name="tColor"]');
+						var tNote  = mEditMark.querySelector('input[name="tNote"]');
+
+						var color = hoursMap[dateStr] ? hoursMap[dateStr].color : "blue";
+						var hours = hoursMap[dateStr] ? hoursMap[dateStr].hours : 1;
+						var note  = hoursMap[dateStr] ? hoursMap[dateStr].note  : "";
+
+						tDate.value  = dateStr;
+						tHours.value = hours;
+						tColor.value = color;
+						tNote.value  = note;
+
+						var cEditMark = mEditMark.getElementsByClassName("modal-close")[0];
+						cEditMark.onclick = function() {
+							mEditMark.style.display = "none";
+						}
 					}
 				}
 
@@ -73,30 +109,18 @@
 					locale: settings ? settings.locale : "",
 					firstDay: settings ? settings.first_day : 0,
 					events: hoursDisplay,
-
-					dateClick: function(info) {
-						const date = info.date;
+					eventClick: onClick,
+					dateClick: onClick,
+					dayCellDidMount(arg) {
+						const date = arg.date;
 						date.setHours(0,0,0,0);
 
-						if (date >= startDate && date <= endDate) {
-							var mEditMark = document.getElementById("mEditMark");
-							mEditMark.style.display = "block";
+						const dateStr = toLocalDateStr(date);
 
-							var tDate  = mEditMark.querySelector('input[name="tDate"]');
-							var tHours = mEditMark.querySelector('input[name="tHours"]');
-							var tColor = mEditMark.querySelector('select[name="tColor"]');
-
-							var color = hoursMap[info.dateStr].color;
-							var hours = hoursMap[info.dateStr].hours;
-
-							tDate.value = info.dateStr;
-							tHours.value = hours ? hours : 1;
-							tColor.value = color ? color : "blue";
-
-							var cEditMark = mEditMark.getElementsByClassName("modal-close")[0];
-							cEditMark.onclick = function() {
-								mEditMark.style.display = "none";
-							}
+						var note = hoursMap[dateStr] ? hoursMap[dateStr].note : undefined;
+						if (note) {
+							arg.el.title = `Note: ${note}`;
+							arg.el.classList.add("day-has-note");
 						}
 					},
 					dayCellClassNames(arg) {
@@ -107,12 +131,12 @@
 						const date = arg.date;
 						date.setHours(0,0,0,0);
 
+						const dateStr = toLocalDateStr(date);
+
 						if (settings) {
 							if (settings.red_sundays && date.getDay() === 0)
 								classes.push("day-sunday");
 						}
-
-						const dateStr = toLocalDateStr(date);
 
 						if (date >= startDate && date <= endDate) {
 							if (date.getTime() == todayDate.getTime())
@@ -157,6 +181,10 @@
 						<div class="input-field">
 							<label>Hours: </label>
 							<input name="tHours" type="number" min="1" value="1" required />
+						</div>
+						<div class="input-field">
+							<label>Note: </label>
+							<input name="tNote" type="text" />
 						</div>
 						<div class="input-field">
 							<label>Color: </label>

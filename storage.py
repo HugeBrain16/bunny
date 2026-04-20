@@ -17,7 +17,7 @@ class Hours:
 		self._note = None
 		self._color = "blue"
 
-	def add_note(self, text):
+	def set_note(self, text):
 		self._note = text
 
 	def get_note(self):
@@ -81,7 +81,7 @@ class Storage:
 				for h in t["hours"].values():
 					hours = Hours(h["date"], h["hours"])
 					if h.get("note"):
-						hours.add_note(h["note"])
+						hours.set_note(h["note"])
 					if h.get("color"):
 						hours.set_color(h["color"])
 
