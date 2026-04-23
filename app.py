@@ -8,10 +8,11 @@ from datetime import datetime
 
 import settings as Settings
 from storage import Storage
+from utils import str_to_date, count_hours, count_days
 
 __APP__ = "Bunny"
 __AUTHOR__ = "HugeBrain16"
-__VERSION__ = "1.3.0"
+__VERSION__ = "1.3.1"
 __DIR__ = user_data_dir(__APP__, __AUTHOR__)
 pathlib.Path(__DIR__).mkdir(parents=True, exist_ok=True)
 
@@ -32,29 +33,6 @@ def resource(path):
     if hasattr(sys, "_MEIPASS"):
         return os.path.join(sys._MEIPASS, path)
     return os.path.join(os.path.abspath("."), path)
-
-def str_to_date(value, fmt="%Y-%m-%d"):
-    return datetime.strptime(value, fmt).astimezone()
-
-def count_hours(tasks):
-	for task in tasks.values():
-		total = 0
-		for hours in task["hours"].values():
-			total += hours["hours"]
-		task["total_hours"] = total
-
-	return tasks
-
-def count_days(tasks):
-	for task in tasks.values():
-		strftime = "%Y-%m-%d"
-
-		start = datetime.strptime(task["start_date"], strftime);
-		end = datetime.strptime(task["end_date"], strftime);
-
-		task["total_days"] = (end - start).days
-
-	return tasks
 
 # ==========================================================
 

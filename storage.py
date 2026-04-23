@@ -2,6 +2,8 @@ import os
 import json
 import zlib
 
+from utils import valid_date
+
 _VALID_COLORS = [
 	"red",
 	"green",
@@ -79,13 +81,14 @@ class Storage:
 				task = self.add_task(t["name"], t["start_date"], t["end_date"], t["target_hours"])
 
 				for h in t["hours"].values():
-					hours = Hours(h["date"], h["hours"])
-					if h.get("note"):
-						hours.set_note(h["note"])
-					if h.get("color"):
-						hours.set_color(h["color"])
+					if valid_date(h["date"]):
+						hours = Hours(h["date"], h["hours"])
+						if h.get("note"):
+							hours.set_note(h["note"])
+						if h.get("color"):
+							hours.set_color(h["color"])
 
-					task._hours.append(hours)
+						task._hours.append(hours)
 
 	def write(self):
 		with open(self.file, "wb") as f:
@@ -104,12 +107,13 @@ class Storage:
 			}
 
 			for hi, h in enumerate(t._hours):
-				task["hours"][hi] = {
-					"date": h.date,
-					"hours": h.hours,
-					"note": h.get_note(),
-					"color": h.get_color(),
-				}
+				if valid_date(h.date):
+					task["hours"][hi] = {
+						"date": h.date,
+						"hours": h.hours,
+						"note": h.get_note(),
+						"color": h.get_color(),
+					}
 
 			data[ti] = task
 
