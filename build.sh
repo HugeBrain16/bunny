@@ -12,6 +12,8 @@ APPDIR="${APP_NAME}.AppDir"
 APPIMAGETOOL="$VIRTUAL_ENV/bin/appimagetool-${ARCH}.AppImage"
 APPIMAGETOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${ARCH}.AppImage"
 OUTPUT="${APP_NAME}-${ARCH}.AppImage"
+PIP="$VIRTUAL_ENV/bin/pip"
+PYINSTALLER="$VIRTUAL_ENV/bin/pyinstaller"
 
 if [[ ! -f "$APPIMAGETOOL" ]]; then
     echo "Fetching appimagetool..."
@@ -25,10 +27,10 @@ fi
 
 rm -rf build dist *.spec
 
-pip install -r requirements.txt
-pip install pyinstaller
+$PIP install -r requirements.txt
+$PIP install pyinstaller
 
-pyinstaller --onedir --name "$APP_NAME" \
+$PYINSTALLER --onedir --name "$APP_NAME" \
     --icon static/icon.png \
     --add-data "templates:templates" \
     --add-data "static:static" \
@@ -39,7 +41,7 @@ pyinstaller --onedir --name "$APP_NAME" \
     --exclude-module PySide6 \
     --clean \
     --noconfirm \
-    web.py
+    src/web.py
 
 rm -rf "$APPDIR"
 mkdir -p "$APPDIR/usr/bin"

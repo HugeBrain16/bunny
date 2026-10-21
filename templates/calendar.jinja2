@@ -2,8 +2,8 @@
 <html>
 	<head>
 		<meta charset='utf-8' />
-		<link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
-		<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/flatpickr.css') }}">
+		<script src="{{ url_for('static', filename='scripts/flatpickr.js') }}"></script>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 		<style>
 			{% if settings.red_sundays %}
@@ -15,18 +15,29 @@
    				color: red;
 			}
 			{% endif %}
+
+			{% if settings.week_total %}
+			.fc .fc-daygrid-week-number.week-total {
+				font-weight: bold;
+				font-size: 0.8em;
+				padding: 2px 6px;
+				color: inherit;
+			}
+
+			.fc .fc-daygrid-week-number.week-total-empty {
+				display: none;
+			}
+			{% else %}
+			.fc .fc-daygrid-week-number {
+				display: none !important;
+			}
+			{% endif %}
 		</style>
-		<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js'></script>
+		<script src="{{ url_for('static', filename='scripts/defs.js') }}"></script>
+		<script src="{{ url_for('static', filename='scripts/fullcalendar.js') }}"></script>
 		<script>
 			const task = {{ task | tojson if task else "null" }};
 			const settings = {{ settings | tojson if settings else "null" }};
-
-			const colorMap = {
-				red: "#d63737",
-				blue: "#429ebf",
-				green: "#1caf48",
-				yellow: "#adaf05",
-			};
 
 			function toLocalDateStr(date) {
 				return date.getFullYear() + '-'
@@ -52,8 +63,16 @@
 
 					for (const hour of Object.values(task.hours)) {
 						markedDays.push(hour.date);
+
+						let display;
+						if (hour.hours < 1) {
+							let minutes = (hour.hours - Math.trunc(hour.hours)) * 60;
+							display = `${minutes} Minute` + (minutes > 1 ? "s" : "")
+						} else
+							display = `${hour.hours} Hour` + (hour.hours > 1 ? "s" : "")
+
 						hoursDisplay.push({
-							title: `${hour.hours} Hour` + (hour.hours > 1 ? "s" : ""),
+							title: display,
 							start: hour.date,
 							backgroundColor: hour.color ?
 								(colorMap[hour.color] ? colorMap[hour.color] : colorMap.blue)
@@ -82,19 +101,21 @@
 						var mEditMark = document.getElementById("mEditMark");
 						mEditMark.style.display = "block";
 
-						var tDate  = mEditMark.querySelector('input[name="tDate"]');
-						var tHours = mEditMark.querySelector('input[name="tHours"]');
-						var tColor = mEditMark.querySelector('select[name="tColor"]');
-						var tNote  = mEditMark.querySelector('input[name="tNote"]');
+						var tDate  	 = mEditMark.querySelector('input[name="tDate"]');
+						var tHours 	 = mEditMark.querySelector('input[name="tHours"]');
+						var tMinutes = mEditMark.querySelector('input[name="tMinutes"]');
+						var tColor 	 = mEditMark.querySelector('select[name="tColor"]');
+						var tNote  	 = mEditMark.querySelector('input[name="tNote"]');
 
 						var color = hoursMap[dateStr] ? hoursMap[dateStr].color : "blue";
-						var hours = hoursMap[dateStr] ? hoursMap[dateStr].hours : 1;
+						var hours = hoursMap[dateStr] ? hoursMap[dateStr].hours : 0;
 						var note  = hoursMap[dateStr] ? hoursMap[dateStr].note  : "";
 
-						tDate.value  = dateStr;
-						tHours.value = hours;
-						tColor.value = color;
-						tNote.value  = note;
+						tDate.value    = dateStr;
+						tHours.value   = Number.isInteger(hours) ? hours : Math.trunc(hours);
+						tMinutes.value = Number.isInteger(hours) ? 0 : (hours - Math.trunc(hours)) * 60;
+						tColor.value   = color;
+						tNote.value    = note;
 
 						var cEditMark = mEditMark.getElementsByClassName("modal-close")[0];
 						cEditMark.onclick = function() {
@@ -103,14 +124,45 @@
 					}
 				}
 
+				function weekTotalMinutes(week_start) {
+					const d = new Date(week_start);
+					d.setHours(0, 0, 0, 0);
+
+					let total = 0;
+					let anyMarked = false;
+
+					for (let i = 0; i < 7; i++) {
+						const entry = hoursMap[toLocalDateStr(d)];
+						if (entry) {
+							anyMarked = true;
+							total += entry.hours;
+						}
+						d.setDate(d.getDate() + 1);
+					}
+
+					return anyMarked ? Math.round(total * 60) : null;
+				}
+
+				function formatMinutes(total_min) {
+					const hours = Math.floor(total_min / 60);
+					const minutes = total_min % 60;
+					if (hours === 0) return `${minutes}m`;
+					return minutes ? `${hours}h ${minutes}m` : `${hours}h`;
+				}
+
+				function formatHours(total_min) {
+					return `${+(total_min / 60).toFixed(2)}h`;
+				}
+
 				var calendar = new FullCalendar.Calendar(calendarEl, {
 					initialView: 'dayGridMonth',
 					timeZone: 'local',
-					locale: settings ? settings.locale : "",
+					locale: settings ? localeCode[settings.locale] : "",
 					firstDay: settings ? settings.first_day : 0,
 					events: hoursDisplay,
 					eventClick: onClick,
 					dateClick: onClick,
+					weekNumbers: true,
 					dayCellDidMount(arg) {
 						const date = arg.date;
 						date.setHours(0,0,0,0);
@@ -152,6 +204,18 @@
 
 						return classes;
 					},
+					weekNumberContent(arg) {
+						const minutes = weekTotalMinutes(arg.date);
+						return minutes === null ? "" : formatHours(minutes);
+					},
+					weekNumberClassNames(arg) {
+						return weekTotalMinutes(arg.date) === null ? ["week-total-empty"] : ["week-total"];
+					},
+					weekNumberDidMount(arg) {
+						const minutes = weekTotalMinutes(arg.date);
+						if (minutes !== null)
+							arg.el.title = `Week total: ${formatMinutes(minutes)}`;
+					},
 				});
 				calendar.render();
 			});
@@ -180,7 +244,11 @@
 						</div>
 						<div class="input-field">
 							<label>Hours: </label>
-							<input name="tHours" type="number" min="1" value="1" required />
+							<input name="tHours" type="number" min="0" value="0" required />
+						</div>
+						<div class="input-field">
+							<label>Minutes: </label>
+							<input name="tMinutes" type="number" min="0" value="0" required />
 						</div>
 						<div class="input-field">
 							<label>Note: </label>
@@ -206,10 +274,12 @@
 		<script>
 			function initDatePicker(locale) {
 				const script = document.createElement("script");
-				script.src = `https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/${locale}.js`;
+				const localeURL = "{{ url_for('static', filename='scripts/flatpickr-locales') }}";
+
+				script.src = `${localeURL}/${locale}.js`;
 				script.onload = () => {
 					flatpickr("input[type='date']", {
-						locale: locale,
+						locale: localeCode[locale],
 						allowInput: false,
 						clickOpens: false
 					});

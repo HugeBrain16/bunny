@@ -12,7 +12,7 @@ from utils import str_to_date, count_hours, count_days
 
 __APP__ = "Bunny"
 __AUTHOR__ = "HugeBrain16"
-__VERSION__ = "1.3.1"
+__VERSION__ = "1.4.0"
 __DIR__ = user_data_dir(__APP__, __AUTHOR__)
 pathlib.Path(__DIR__).mkdir(parents=True, exist_ok=True)
 
@@ -50,8 +50,15 @@ def route_index():
 	tasks = count_days(tasks)
 
 	settings = Settings.load(SETTINGSFILE)
+	locales = sorted([f.stem for f in (pathlib.Path(app.static_folder) / "scripts" / "flatpickr-locales").iterdir() if f.is_file()])
+	bunny = (pathlib.Path(app.static_folder) / "bunny.txt").open("r").read()
 
-	return render_template("index.html", tasks=tasks, settings=settings)
+	return render_template("index.jinja2",
+		tasks=tasks,
+		settings=settings,
+		locales=locales,
+		bunny=bunny
+	)
 
 @app.route("/calendar", methods=["GET", "POST"])
 def route_calendar():
@@ -63,9 +70,9 @@ def route_calendar():
 
 	if request.method == "POST":
 		idx = int(request.form["index"])
-		return render_template("calendar.html", task=tasks[idx], taskIndex=idx, settings=settings)
+		return render_template("calendar.jinja2", task=tasks[idx], taskIndex=idx, settings=settings)
 	elif request.method == "GET":
-		return render_template("calendar.html", task=None, settings=settings)
+		return render_template("calendar.jinja2", task=None, settings=settings)
 
 @app.route("/delete", methods=["POST"])
 def route_delete():
@@ -79,12 +86,15 @@ def route_delete():
 def route_add():
 	db = Storage(DATAFILE)
 
+	if request.form["tStartDate"] == "" or request.form["tEndDate"] == "":
+		return redirect(url_for("route_index"))
+
 	try:
 		db.add_task(
 			request.form["tName"],
 			request.form["tStartDate"],
 			request.form["tEndDate"],
-			int(request.form["tHours"])
+			int(request.form["tHours"]) + (int(request.form["tMinutes"]) / 60)
 		)
 		db.write()
 	except ValueError:
@@ -100,7 +110,7 @@ def route_edit():
 	db.tasks[idx].name 		   = request.form["tName"]
 	db.tasks[idx].start_date   = request.form["tStartDate"]
 	db.tasks[idx].end_date 	   = request.form["tEndDate"]
-	db.tasks[idx].target_hours = request.form["tHours"]
+	db.tasks[idx].target_hours = str(int(request.form["tHours"]) + (int(request.form["tMinutes"]) / 60))
 
 	db.write()
 	return redirect(url_for("route_index"))
@@ -120,7 +130,7 @@ def route_unmark():
 
 	settings = Settings.load(SETTINGSFILE)
 
-	return render_template("calendar.html", task=tasks[idx], taskIndex=idx, settings=settings)
+	return render_template("calendar.jinja2", task=tasks[idx], taskIndex=idx, settings=settings)
 
 @app.route("/mark", methods=["POST"])
 def route_mark():
@@ -129,10 +139,11 @@ def route_mark():
 	ti = int(request.form["tIndex"])
 	date = request.form["tDate"]
 	hours = int(request.form["tHours"])
+	minutes = int(request.form["tMinutes"]) / 60
 	color = request.form["tColor"]
 	note = request.form["tNote"]
 
-	db.tasks[ti].add_hours(date, hours)
+	db.tasks[ti].add_hours(date, hours + minutes)
 
 	for hi, h in enumerate(db.tasks[ti]._hours):
 		if h.date == date:
@@ -146,7 +157,7 @@ def route_mark():
 
 	settings = Settings.load(SETTINGSFILE)
 
-	return render_template("calendar.html", task=tasks[ti], taskIndex=ti, settings=settings)
+	return render_template("calendar.jinja2", task=tasks[ti], taskIndex=ti, settings=settings)
 
 @app.route("/settings", methods=["POST"])
 def route_settings():
@@ -155,6 +166,7 @@ def route_settings():
 	settings["locale"] 		= request.form["tLocale"]
 	settings["first_day"] 	= DAYMAP[request.form["tFirstDay"]]
 	settings["red_sundays"] = request.form.get("tRedSundays") == "yes"
+	settings["week_total"]  = request.form.get("tWeekTotal") == "yes"
 
 	Settings.write(SETTINGSFILE, settings)
 

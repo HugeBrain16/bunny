@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8' />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/fork-awesome.css') }}"/>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/flatpickr.css') }}">
+		<script src="{{ url_for('static', filename='scripts/flatpickr.js') }}"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+		<title>Bunny Hours Tracker</title>
+	</head>
+	<body>
+		{% macro fmt_hours(value) -%}
+    		{{ value | float | string if (value | float) % 1 else value | float | int }}
+		{%- endmacro %}
+
+		<span id="bSettings"><i class="fa fa-cog" aria-hidden="true"></i> Settings</span>
+
+		<div class="content" align="center">
+			<div class="header">
+				<pre>{{ bunny }}</pre>
+				<h1 id="title">Bunny Hours Tracker</h1>
+			<div>
+
+			<button id="bAddTask">Add task</button>
+			
+			<table id="tasks">
+				<tr>
+					<th>No.</th>
+					<th>Name</th>
+					<th>Start date</th>
+					<th>End date</th>
+					<th>Target hours</th>
+					<th>Action</th>
+				</tr>
+				{% for ti, t in tasks.items() %}
+				<tr>
+					<td>{{ ti + 1 }}</td>
+					<td>{{ t.name }}</td>
+					<td>{{ t.start_date }}</td>
+					<td>{{ t.end_date }}</td>					
+					{% if t.total_hours | float >= t.target_hours | float %}
+					<td style="background-color: var(--green);">
+					{% elif today_date() > t.end_date | str_to_date and t.total_hours | float < t.target_hours | float %}
+					<td style="background-color: var(--red2);">
+					{% else %}
+					<td>
+					{% endif %}
+						{{ fmt_hours(t.total_hours) }} / {{ fmt_hours(t.target_hours) }}
+					</td>
+					<td>
+						<form method="POST" class="actions">
+							<button formaction="/calendar" name="index" value="{{ ti }}">Track</button>
+							<button type="button" onclick="bEditCallback(event)" name="index" value="{{ ti }}">Edit</button>
+							<button class="button-delete" formaction="/delete" name="index" value="{{ ti }}" onclick="return confirm('Delete this task?')">Delete</button>
+						</form>
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+			{% if not tasks %}
+				<p>Task empty.</p>
+			{% endif %}
+
+		</div>
+
+		<footer>
+			<p>•⩊•</p>
+		</footer>
+
+		{% include "modals/addTask.jinja2" %}
+		{% include "modals/editTask.jinja2" %}
+		{% include "modals/settings.jinja2" %}
+		<script src="{{ url_for('static', filename='scripts/defs.js') }}"></script>
+		<script>
+			const tasks = {{ tasks | tojson if tasks else "null" }};
+			const settings = {{ settings | tojson if settings else "null" }};
+
+			function initDatePicker(locale) {
+				const script = document.createElement("script");
+				const localeURL = "{{ url_for('static', filename='scripts/flatpickr-locales') }}";
+
+				script.src = `${localeURL}/${locale}.js`;
+				script.onload = () => {
+					flatpickr("input[type='date']", {
+						locale: localeCode[locale]
+					});
+				};
+				script.onerror = () => {
+					flatpickr("input[type='date']", {
+						locale: "default"
+					});
+				};
+				document.head.appendChild(script);
+			}
+			initDatePicker(settings ? settings.locale : "default");
+		</script>
+	</body>
+</html>

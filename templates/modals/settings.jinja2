@@ -1,0 +1,69 @@
+<div id="mSettings" class="modal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div class="modal-body" align="center">
+            <h2>Settings</h2>
+            <form method="POST" action="/settings">
+                <div class="input-field">
+                    <label>Locale: </label>
+                    <select name="tLocale" required>
+                        {% for locale in locales %}
+                            <option value="{{ locale }}">{{ locale }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-field">
+                    <label>First day of the week: </label>
+                    <select name="tFirstDay" required>
+                        <option value="sunday">Sunday</option>
+                        <option value="monday">Monday</option>
+                        <option value="tuesday">Tuesday</option>
+                        <option value="wednesday">Wednesday</option>
+                        <option value="thursday">Thursday</option>
+                        <option value="friday">Friday</option>
+                        <option value="saturday">Saturday</option>
+                    </select>
+                </div>
+                <div class="input-field">
+                    <label>Mark sundays red: </label>
+                    <input name="tRedSundays" type="checkbox" value="yes" />
+                </div>
+                <div class="input-field">
+                    <label>Show week total hours: </label>
+                    <input name="tWeekTotal" type="checkbox" value="yes" />
+                </div>
+                <button name="tSubmit">Save!</buton>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+var mSettings = document.getElementById("mSettings");
+var bSettings = document.getElementById("bSettings");
+
+bSettings.onclick = function() {
+    mSettings.style.display = "block";
+
+    var tLocale   	= mSettings.querySelector('[name="tLocale"]');
+    var tFirstDay	= mSettings.querySelector('[name="tFirstDay"]');
+    var tRedSundays = mSettings.querySelector('[name="tRedSundays"]');
+    var tWeekTotal  = mSettings.querySelector('[name="tWeekTotal"]');
+
+    if (settings) {
+        tLocale.value 		= settings.locale;
+        tFirstDay.value 	= dayMap[settings.first_day];
+        tRedSundays.checked = settings.red_sundays;
+        tWeekTotal.checked  = settings.week_total;
+    } else {
+        tLocale.value 		= "English";
+        tFirstDay.value 	= dayMap[1];
+        tRedSundays.checked = true;
+        tWeekTotal.checked  = true;
+    }
+
+    var cSettings = mSettings.getElementsByClassName("modal-close")[0];
+    cSettings.onclick = function() {
+        mSettings.style.display = "none";
+    }
+}
+</script>

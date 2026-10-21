@@ -1,0 +1,59 @@
+<div id="mEditTask" class="modal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div class="modal-body" align="center">
+            <h2>Edit task</h2>
+            <form method="POST" action="/edit">
+                <div class="input-field">
+                    <label>Name: </label>
+                    <input name="tName" type="text" required />
+                </div>
+                <div class="input-field">
+                    <label>Start date: </label>
+                    <input name="tStartDate" type="date" required />
+                </div>
+                <div class="input-field">
+                    <label>End date: </label>
+                    <input name="tEndDate" type="date" required />
+                </div>
+                <div class="input-field">
+                    <label>Target hours: </label>
+                    <input name="tHours" type="number" min="0" value="0" required />
+                </div>
+                <div class="input-field">
+                    <label>+ Minutes: </label>
+                    <input name="tMinutes" type="number" min="0" value="0" required />
+                </div>
+                <button name="tSubmit">Save!</buton>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+var mEditTask = document.getElementById("mEditTask");
+function bEditCallback(event) {
+    const idx = parseInt(event.target.value);
+
+    mEditTask.style.display = "block";
+
+    var tName 	   = mEditTask.querySelector('[name="tName"]');
+    var tStartDate = mEditTask.querySelector('[name="tStartDate"]');
+    var tEndDate   = mEditTask.querySelector('[name="tEndDate"]');
+    var tHours 	   = mEditTask.querySelector('[name="tHours"]');
+    var tMinutes   = mEditTask.querySelector('[name="tMinutes"]');
+    var tSubmit    = mEditTask.querySelector('[name="tSubmit"]');
+
+    const task = tasks[idx];
+    tName.value 	 = task.name;
+    tStartDate.value = task.start_date;
+    tEndDate.value 	 = task.end_date;
+    tHours.value 	 = Number.isInteger(task.target_hours) ? task.target_hours : Math.trunc(task.target_hours);
+    tMinutes.value   = Number.isInteger(task.target_hours) ? 0 : (task.target_hours - Math.trunc(task.target_hours)) * 60;
+    tSubmit.value 	 = idx;
+
+    var cEditTask = mEditTask.getElementsByClassName("modal-close")[0];
+    cEditTask.onclick = function() {
+        mEditTask.style.display = "none";
+    }
+}
+</script>

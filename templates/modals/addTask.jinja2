@@ -1,0 +1,56 @@
+<div id="mAddTask" class="modal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div class="modal-body" align="center">
+            <h2>Add task</h2>
+            <form method="POST" action="/add">
+                <div class="input-field">
+                    <label>Name: </label>
+                    <input name="tName" type="text" required />
+                </div>
+                <div class="input-field">
+                    <label>Start date: </label>
+                    <input name="tStartDate" type="date" required />
+                </div>
+                <div class="input-field">
+                    <label>End date: </label>
+                    <input name="tEndDate" type="date" required />
+                </div>
+                <div class="input-field">
+                    <label>Target hours: </label>
+                    <input name="tHours" type="number" min="0" value="0" required />
+                </div>
+                <div class="input-field">
+                    <label>+ Minutes: </label>
+                    <input name="tMinutes" type="number" min="0" value="0" required />
+                </div>
+                <button>Add!</buton>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+var mAddTask = document.getElementById("mAddTask");
+var bAddTask = document.getElementById("bAddTask");
+
+bAddTask.onclick = function() {
+    mAddTask.style.display = "block";
+
+    var tName 	   = mAddTask.querySelector('[name="tName"]');
+    var tStartDate = mAddTask.querySelector('[name="tStartDate"]');
+    var tEndDate   = mAddTask.querySelector('[name="tEndDate"]');
+    var tHours 	   = mAddTask.querySelector('[name="tHours"]');
+    var tMinutes   = mAddTask.querySelector('[name="tMinutes"]');
+
+    tName.value 	 = "My Task #{{ tasks|length + 1 }}";
+    tStartDate.value = new Date().toISOString().slice(0, 10);
+    tEndDate.value 	 = new Date().toISOString().slice(0, 10);
+    tHours.value 	 = 0;
+    tMinutes.value   = 0;
+
+    var cAddTask = mAddTask.getElementsByClassName("modal-close")[0];
+    cAddTask.onclick = function() {
+        mAddTask.style.display = "none";
+    }
+}
+</script>
