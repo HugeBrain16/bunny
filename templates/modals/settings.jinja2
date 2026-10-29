@@ -32,6 +32,14 @@
                     <label>Show week total hours: </label>
                     <input name="tWeekTotal" type="checkbox" value="yes" />
                 </div>
+                <div class="input-field">
+                    <label>Show total hours in calendar menu: </label>
+                    <input name="tTotalHours" type="checkbox" value="yes" />
+                </div>
+                <div class="input-field">
+                    <label>Show total days marked in calendar menu: </label>
+                    <input name="tDaysMarked" type="checkbox" value="yes" />
+                </div>
                 <button name="tSubmit">Save!</buton>
             </form>
         </div>
@@ -48,17 +56,22 @@ bSettings.onclick = function() {
     var tFirstDay	= mSettings.querySelector('[name="tFirstDay"]');
     var tRedSundays = mSettings.querySelector('[name="tRedSundays"]');
     var tWeekTotal  = mSettings.querySelector('[name="tWeekTotal"]');
+    var tTotalHours = mSettings.querySelector('[name="tTotalHours"]');
+    var tDaysMarked = mSettings.querySelector('[name="tDaysMarked"]');
 
     if (settings) {
         tLocale.value 		= settings.locale;
         tFirstDay.value 	= dayMap[settings.first_day];
         tRedSundays.checked = settings.red_sundays;
         tWeekTotal.checked  = settings.week_total;
+        tTotalHours.checked = settings.total_hours;
     } else {
         tLocale.value 		= "English";
         tFirstDay.value 	= dayMap[1];
         tRedSundays.checked = true;
         tWeekTotal.checked  = true;
+        tTotalHours.checked = true;
+        tDaysMarked.checked = true;
     }
 
     var cSettings = mSettings.getElementsByClassName("modal-close")[0];

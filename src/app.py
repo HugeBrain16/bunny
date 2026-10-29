@@ -12,7 +12,7 @@ from utils import str_to_date, count_hours, count_days
 
 __APP__ = "Bunny"
 __AUTHOR__ = "HugeBrain16"
-__VERSION__ = "1.4.0"
+__VERSION__ = "1.4.1"
 __DIR__ = user_data_dir(__APP__, __AUTHOR__)
 pathlib.Path(__DIR__).mkdir(parents=True, exist_ok=True)
 
@@ -130,7 +130,8 @@ def route_unmark():
 
 	settings = Settings.load(SETTINGSFILE)
 
-	return render_template("calendar.jinja2", task=tasks[idx], taskIndex=idx, settings=settings)
+	view = request.form.get("tView") or date
+	return render_template("calendar.jinja2", task=tasks[idx], taskIndex=idx, settings=settings, gotoDate=view)
 
 @app.route("/mark", methods=["POST"])
 def route_mark():
@@ -157,7 +158,8 @@ def route_mark():
 
 	settings = Settings.load(SETTINGSFILE)
 
-	return render_template("calendar.jinja2", task=tasks[ti], taskIndex=ti, settings=settings)
+	view = request.form.get("tView") or date
+	return render_template("calendar.jinja2", task=tasks[ti], taskIndex=ti, settings=settings, gotoDate=view)
 
 @app.route("/settings", methods=["POST"])
 def route_settings():
@@ -167,6 +169,8 @@ def route_settings():
 	settings["first_day"] 	= DAYMAP[request.form["tFirstDay"]]
 	settings["red_sundays"] = request.form.get("tRedSundays") == "yes"
 	settings["week_total"]  = request.form.get("tWeekTotal") == "yes"
+	settings["total_hours"] = request.form.get("tTotalHours") == "yes"
+	settings["days_marked"] = request.form.get("tDaysMarked") == "yes"
 
 	Settings.write(SETTINGSFILE, settings)
 

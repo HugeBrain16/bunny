@@ -38,6 +38,7 @@
 		<script>
 			const task = {{ task | tojson if task else "null" }};
 			const settings = {{ settings | tojson if settings else "null" }};
+			const gotoDate = {{ gotoDate | tojson if gotoDate else "null" }};
 
 			function toLocalDateStr(date) {
 				return date.getFullYear() + '-'
@@ -106,6 +107,7 @@
 						var tMinutes = mEditMark.querySelector('input[name="tMinutes"]');
 						var tColor 	 = mEditMark.querySelector('select[name="tColor"]');
 						var tNote  	 = mEditMark.querySelector('input[name="tNote"]');
+						var tView    = mEditMark.querySelector('input[name="tView"]');
 
 						var color = hoursMap[dateStr] ? hoursMap[dateStr].color : "blue";
 						var hours = hoursMap[dateStr] ? hoursMap[dateStr].hours : 0;
@@ -116,6 +118,7 @@
 						tMinutes.value = Number.isInteger(hours) ? 0 : (hours - Math.trunc(hours)) * 60;
 						tColor.value   = color;
 						tNote.value    = note;
+						tView.value    = toLocalDateStr(calendar.view.currentStart);
 
 						var cEditMark = mEditMark.getElementsByClassName("modal-close")[0];
 						cEditMark.onclick = function() {
@@ -218,16 +221,28 @@
 					},
 				});
 				calendar.render();
+				if (gotoDate)
+					calendar.gotoDate(gotoDate);
 			});
 		</script>
 		<title>Bunny Hours Tracker</title>
 	</head>
 	<body>
+		{% macro fmt_hours(value) -%}
+    		{{ value | float | string if (value | float) % 1 else value | float | int }}
+		{%- endmacro %}
+
 		<div class="content" align="center">
 			{% if task %}
 				<h1>{{ task.name }}</h1>
 			{% endif %}
 			<div id="calendar"></div>
+			{% if settings.total_hours %}
+			<p>Total hours: {{ fmt_hours(task.total_hours) }} / {{ fmt_hours(task.target_hours) }}</p>
+			{% endif %}
+			{% if settings.days_marked %}
+			<p>Days Marked: {{ task.hours | length }}</p>
+			{% endif %}
 			<br/>
 			<h2><a class="redir" href="{{ url_for('route_index')}}">Go back</a></h2>
 		</div>
@@ -267,6 +282,8 @@
 							<button formaction="/mark" name="tIndex" value="{{ taskIndex }}">Mark!</buton>
 							<button class="button-unmark" formaction="/unmark" name="tIndex" value="{{ taskIndex }}">Unmark</buton>
 						</div>
+
+						<input type="hidden" name="tView" />
 					</form>
 				</div>
 			</div>
